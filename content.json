@@ -60,8 +60,8 @@
         "zh": "在所测试的不同障碍物密度下，线速度 Jerk RMS 较次优方法降低 33.2%–47.6%，单周期计算时间为 4.25–5.63 ms，成功率超过 80%；在 HUNTER 2.0 阿克曼底盘和宇树 G1-D 平台上完成实机验证。"
       },
       "links": {
-        "paper": null,
-        "code": null,
+        "paper": "https://arxiv.org/abs/2610.34929",
+        "code": "https://github.com/Bling-sun/LECO",
         "video": null
       },
       "media": [
@@ -454,3 +454,4 @@
     }
   ]
 }
+
