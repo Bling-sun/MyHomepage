@@ -16,7 +16,7 @@ Regenerate the pages with Node.js:
 node scripts/build.mjs
 ```
 
-The homepage has separate **View CV** and **Download CV** links. `cv.html` displays the original Chinese resume, using page images so it works without a browser PDF plugin. Both download links use `assets/Bing-Sun-CV.pdf`.
+The homepage's **View CV** link opens `cv.html`, which displays the original Chinese resume using page images so it works without a browser PDF plugin. The **Download CV** button is available on that preview page and downloads `assets/Bing-Sun-CV.pdf`.
 
 After replacing that PDF, regenerate its preview images with Poppler before building:
 
