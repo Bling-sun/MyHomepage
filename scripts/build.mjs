@@ -97,7 +97,7 @@ function build(cv = false) {
   const interests = text(content.interests, 'interests', 'p', ' class="interests"');
   const nav = [['projects', 'Projects', '项目'], ['papers', 'Papers', '论文'], ['awards', 'Awards', '竞赛'], ['skills', 'Skills', '技能']];
   const toolbar = `<div class="toolbar" aria-label="Links and display options">
-    ${cv ? link('./', ui('Homepage', '主页', 'ui.home'), ' class="tool-link"') : link('assets/Bing-Sun-CV.pdf', `${icon('cv')}${ui('Download CV', '下载简历', 'ui.cv')}`, ' class="tool-link" id="cv-download" download="Bing-Sun-CV.pdf"')}
+    ${cv ? link('./', ui('Homepage', '主页', 'ui.home'), ' class="tool-link" data-profile-link') : link('cv.html', `${icon('cv')}${ui('View CV', '查看简历', 'ui.cv')}`, ' class="tool-link" id="cv-link" data-profile-link')}
     ${link(content.github, `${icon('github')}<span>GitHub</span>`, ' class="tool-link" target="_blank" rel="noopener noreferrer"')}
     ${link(mailWebUrl(content.email), `${icon('mail')}${ui('Email', '邮箱', 'ui.email')}`, ' class="tool-link" data-email-contact aria-haspopup="dialog"')}
     <span class="toolbar-divider" aria-hidden="true"></span>

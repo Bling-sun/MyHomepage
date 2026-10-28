@@ -21,6 +21,12 @@
     document.getElementById('language-label').textContent = language === 'en' ? '中文' : 'EN';
     languageButton.setAttribute('aria-label', language === 'en' ? '切换为中文' : 'Switch to English');
     document.title = language === 'zh' ? `孙冰${document.body.classList.contains('cv-page') ? ' — 简历' : ' | 机器人与具身智能'}` : `Bing Sun${document.body.classList.contains('cv-page') ? ' — CV' : ' | Robotics & Embodied AI'}`;
+    // Carry the selected language between the homepage and CV, even without storage.
+    for (const link of document.querySelectorAll('[data-profile-link]')) {
+      const url = new URL(link.getAttribute('href'), location.href);
+      url.searchParams.set('lang', language);
+      link.href = url.href;
+    }
     renderTheme();
   }
 
