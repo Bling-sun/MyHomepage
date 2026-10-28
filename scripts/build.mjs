@@ -30,9 +30,6 @@ const icon = name => `<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" st
 
 function build(cv = false) {
   const translations = {};
-  const emoji = symbol => cv ? '' : `<span class="emoji" aria-hidden="true">${symbol}</span>`;
-  const sectionEmoji = { projects: '🛠️', papers: '📄', awards: '🏆', skills: '💻' };
-  const entryEmoji = { tea: '🍵', sorting: '📦', navigation: '📍', 'multi-agent': '🤝', leco: '🎯', ucon: '🛡️' };
   const text = (value, key, tag = 'span', attrs = '') => {
     if (typeof value === 'string') return `<${tag}${attrs}>${escape(value)}</${tag}>`;
     translations[key] = value;
@@ -77,7 +74,7 @@ function build(cv = false) {
   const article = (entry, type, index) => {
     const key = `${type}.${index}`;
     const publication = type === 'paper';
-    const head = `<div class="entry-heading"><h3>${emoji(entryEmoji[entry.id] || '🔬')}${text(entry.title, `${key}.title`)}</h3>
+    const head = `<div class="entry-heading"><h3>${text(entry.title, `${key}.title`)}</h3>
       <div class="entry-meta">${publication ? `<span class="venue">${escape(entry.venue)}</span>${text(entry.status, `${key}.status`, 'span', ` class="status ${entry.statusType}"`)}` : text(entry.date, `${key}.date`, 'span', ' class="date"')}</div></div>`;
     const description = text(entry.description, `${key}.description`, 'p');
     return `<article class="entry ${publication ? 'paper' : 'project'}${!cv ? ' has-media' : ''}" id="${entry.id}">
@@ -91,20 +88,20 @@ function build(cv = false) {
       </div>${media(entry, key)}</article>`;
   };
 
-  const section = (id, en, zh, body, count) => `<section id="${id}" aria-labelledby="${id}-heading"><div class="section-heading"><h2 id="${id}-heading">${emoji(sectionEmoji[id])}${ui(en, zh, `heading.${id}`)}</h2>${count ? `<span class="section-count">${String(count).padStart(2, '0')}</span>` : ''}</div>${body}</section>`;
+  const section = (id, en, zh, body, count) => `<section id="${id}" aria-labelledby="${id}-heading"><div class="section-heading"><div class="section-title"><span class="section-index" aria-hidden="true">${String(['projects', 'papers', 'awards', 'skills'].indexOf(id) + 1).padStart(2, '0')} /</span><h2 id="${id}-heading">${ui(en, zh, `heading.${id}`)}</h2></div>${count ? `<span class="section-count">${String(count).padStart(2, '0')}</span>` : ''}</div>${body}</section>`;
   const bio = content.bio.map((p, i) => text(p, `bio.${i}`, 'p')).join('');
   const awards = `<ul class="awards-list">${content.awards.map((award, i) => text(award, `award.${i}`, 'li')).join('')}</ul>`;
-  const skills = `<dl class="skills-list">${content.skills.map((skill, i) => `<div><dt>${emoji(['📍', '🤖', '👁️', '💻'][i])}${text(skill.label, `skill.${i}.label`)}</dt><dd>${escape(skill.detail)}</dd></div>`).join('')}</dl>`;
+  const skills = `<dl class="skills-list">${content.skills.map((skill, i) => `<div><dt><span class="skill-index" aria-hidden="true">0${i + 1}</span>${text(skill.label, `skill.${i}.label`)}</dt><dd>${escape(skill.detail)}</dd></div>`).join('')}</dl>`;
   const name = text(content.name, 'name', 'h1');
   const role = text(content.role, 'role', 'p', ' class="role"');
   const interests = text(content.interests, 'interests', 'p', ' class="interests"');
   const nav = [['projects', 'Projects', '项目'], ['papers', 'Papers', '论文'], ['awards', 'Awards', '竞赛'], ['skills', 'Skills', '技能']];
   const toolbar = `<div class="toolbar" aria-label="Links and display options">
-    ${cv ? link('./', ui('Homepage', '主页', 'ui.home'), ' class="tool-link" data-profile-link') : link('cv.html', `${icon('cv')}${ui('View CV', '查看简历', 'ui.cv')}`, ' class="tool-link" id="cv-link" data-profile-link')}
-    ${cv ? link('assets/Bing-Sun-CV.pdf', `${icon('download')}${ui('Download CV', '下载简历', 'ui.downloadCV')}`, ' class="tool-link" id="cv-download" download="Bing-Sun-CV.pdf"') : ''}
+    ${cv ? link('./', `<span aria-hidden="true">←</span>${ui('Back to homepage', '返回主页', 'ui.home')}`, ' class="tool-link" data-profile-link') : link('cv.html', `${icon('cv')}${ui('View CV', '查看简历', 'ui.cv')}<span aria-hidden="true">↗</span>`, ' class="tool-link button-primary" id="cv-link" data-profile-link')}
     ${link(content.github, `${icon('github')}<span>GitHub</span>`, ' class="tool-link" target="_blank" rel="noopener noreferrer"')}
     ${link(mailWebUrl(content.email), `${icon('mail')}${ui('Email', '邮箱', 'ui.email')}`, ' class="tool-link" data-email-contact aria-haspopup="dialog"')}
-    <span class="toolbar-divider" aria-hidden="true"></span>
+  </div>`;
+  const displayOptions = `<div class="display-options" aria-label="Display options">
     <button class="tool-link" id="language-toggle" type="button" aria-label="切换为中文">${icon('translate')}<span id="language-label">中文</span></button>
     <button class="tool-link theme-toggle" id="theme-toggle" type="button" aria-label="Switch to dark theme">${icon('theme')}</button>
   </div>`;
@@ -132,26 +129,34 @@ function build(cv = false) {
 <body${cv ? ' class="cv-page"' : ''}>
   ${ui('Skip to content', '跳转到内容', 'ui.skip', 'a', ' class="skip-link" href="#main"')}
   <header class="hero">
+    <div class="site-topbar">
+      <a class="brand" href="./" data-profile-link aria-label="Bing Sun — Homepage"><span class="brand-mark" aria-hidden="true">bs<span>.</span></span><span class="brand-name">Bing Sun</span></a>
+      ${ui(cv ? 'CURRICULUM VITAE' : 'RESEARCH PORTFOLIO', cv ? '个人简历' : '研究与实践', 'topbar.caption', 'span', ' class="topbar-caption"')}
+      ${displayOptions}
+    </div>
     <div class="hero-inner">
       <div class="hero-copy">
-        ${ui('ROBOTICS / EMBODIED AI', '机器人 / 具身智能', 'hero.eyebrow', 'p', ' class="eyebrow"')}
-        ${name}${role}${interests}${toolbar}
+        <div class="eyebrow"><span class="status-dot" aria-hidden="true"></span>${ui('ROBOTICS & EMBODIED AI', '机器人与具身智能', 'hero.eyebrow')}</div>
+        <div class="hero-name">${name}${text({ en: '孙冰', zh: 'Bing Sun' }, 'name.alternate', 'span', ' class="alternate-name"')}</div>${role}
+        ${!cv ? ui('Connecting perception, planning, and learned control for real robots.', '连接感知、规划与学习控制，让机器人走进真实世界。', 'hero.intro', 'p', ' class="hero-intro"') + interests : ''}
+        ${toolbar}
         ${!cv ? link('#projects', `${ui('Explore my work', '探索我的项目', 'hero.explore')}<span aria-hidden="true">↗</span>`, ' class="hero-cta"') : ''}
       </div>
       <div class="portrait-wrap"><img class="portrait" src="assets/portrait.jpg" alt="Bing Sun" width="128" height="154"><span class="portrait-caption">SHENZHEN · CHINA</span></div>
 
     </div>
+    ${!cv ? `<div class="hero-index"><div><strong>${String(content.projects.length).padStart(2, '0')}</strong>${ui('Selected projects', '项目实践', 'hero.projects')}</div><div><strong>${String(content.papers.length).padStart(2, '0')}</strong>${ui('Research papers', '研究论文', 'hero.papers')}</div><div><strong>2027</strong>${ui('Expected graduation', '预计毕业', 'hero.graduation')}</div><p>${ui('PERCEPTION → PLANNING → ACTION', '感知 → 规划 → 行动', 'hero.pipeline')}</p></div>` : ''}
   </header>
   ${!cv ? `<nav class="section-nav" aria-label="Sections"><div class="section-nav-inner">${nav.map(([id, en, zh]) => link(`#${id}`, icon(id) + ui(en, zh, `nav.${id}`))).join('')}</div></nav>` : ''}
   <main class="container" id="main">
     ${cv ? `<section class="cv-document" aria-labelledby="cv-heading">
-      <div class="cv-document-heading"><div>${ui('Curriculum Vitae', '个人简历', 'cv.heading', 'h2', ' id="cv-heading"')}${ui(`Original Chinese CV · ${cvPages.length} pages`, `中文简历原件 · 共 ${cvPages.length} 页`, 'cv.description', 'p')}</div>${link('assets/Bing-Sun-CV.pdf', `${icon('cv')}${ui('Open PDF', '打开 PDF 原件', 'ui.openPDF')}`, ' class="tool-link" target="_blank" rel="noopener noreferrer"')}</div>
-      <div class="cv-pages">${cvPages.map((page, i) => {
+      <div class="cv-document-heading"><div>${ui('Curriculum Vitae', '个人简历', 'cv.heading', 'h2', ' id="cv-heading"')}${ui(`Original Chinese CV · ${cvPages.length} pages`, `中文简历原件 · 共 ${cvPages.length} 页`, 'cv.description', 'p')}</div><div class="document-actions">${link('assets/Bing-Sun-CV.pdf', `${icon('cv')}${ui('Open PDF', '打开 PDF', 'ui.openPDF')}`, ' class="tool-link" target="_blank" rel="noopener noreferrer"')}${link('assets/Bing-Sun-CV.pdf', `${icon('download')}${ui('Download CV', '下载简历', 'ui.downloadCV')}`, ' class="tool-link button-primary" id="cv-download" download="Bing-Sun-CV.pdf"')}</div></div>
+      <div class="cv-reader"><nav class="cv-outline" aria-label="CV pages">${ui('IN THIS DOCUMENT', '文档导航', 'cv.outline', 'p')}${cvPages.map((page, i) => link(`#cv-page-${i + 1}`, `<span class="page-number">0${i + 1}</span>${ui(`Page ${i + 1}`, `第 ${i + 1} 页`, `cv.page.${i}.nav`)}`)).join('')}<span class="document-format">PDF · A4</span></nav><div class="cv-pages">${cvPages.map((page, i) => {
         const altKey = `cv.page.${i}.alt`;
         translations[altKey] = { en: `Bing Sun's original Chinese CV, page ${i + 1} of ${cvPages.length}. Open the PDF above for selectable text.`, zh: `孙冰中文简历原件，第 ${i + 1} 页，共 ${cvPages.length} 页。可通过上方链接打开 PDF 查看文字。` };
-        return `<figure class="cv-sheet"><figcaption>${ui(`Page ${i + 1} / ${cvPages.length}`, `第 ${i + 1} 页 / 共 ${cvPages.length} 页`, `cv.page.${i}.label`)}</figcaption><img src="assets/cv/${escape(page)}" width="1273" height="1800" alt="${escape(translations[altKey].en)}" data-i18n-alt="${altKey}" ${i ? 'loading="lazy"' : 'fetchpriority="high"'} decoding="async"></figure>`;
-      }).join('')}</div>
-    </section>` : `<section class="profile" aria-labelledby="about-heading"><h2 id="about-heading">${emoji('👋')}${ui('About Me', '个人简介', 'heading.about')}</h2>${bio}</section>
+        return `<figure class="cv-sheet" id="cv-page-${i + 1}"><figcaption>${ui(`Page ${i + 1} / ${cvPages.length}`, `第 ${i + 1} 页 / 共 ${cvPages.length} 页`, `cv.page.${i}.label`)}</figcaption><img src="assets/cv/${escape(page)}" width="1273" height="1800" alt="${escape(translations[altKey].en)}" data-i18n-alt="${altKey}" ${i ? 'loading="lazy"' : 'fetchpriority="high"'} decoding="async"></figure>`;
+      }).join('')}</div></div>
+    </section>` : `<section class="profile" aria-labelledby="about-heading"><div class="profile-label">${ui('THE BACKGROUND', '关于我', 'about.eyebrow', 'p', ' class="eyebrow"')}<h2 id="about-heading">${ui('A little about me.', '从研究到实践。', 'heading.about')}</h2></div><div class="profile-body">${bio}</div></section>
     ${section('projects', 'Projects', '项目', `<div class="project-grid">${content.projects.map((p, i) => article(p, 'project', i)).join('')}</div>`, content.projects.length)}
     ${section('papers', 'Papers', '论文', content.papers.map((p, i) => article(p, 'paper', i)).join('') + ui('Additional research materials will be linked as they become public.', '更多研究资料将在公开后补充链接。', 'papers.note', 'p', ' class="section-note"'), content.papers.length)}
     ${section('awards', 'Competition & Awards', '竞赛与荣誉', awards)}
