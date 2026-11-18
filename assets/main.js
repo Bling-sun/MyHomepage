@@ -8,7 +8,9 @@
   const stored = key => { try { return localStorage.getItem(key); } catch { return null; } };
   const save = (key, value) => { try { localStorage.setItem(key, value); } catch {} };
   let language = new URLSearchParams(location.search).get('lang') || stored('bing-language') || 'en';
-  let theme = stored('bing-theme') || 'light';
+  const systemDark = window.matchMedia?.('(prefers-color-scheme: dark)');
+  // Follow the operating system until the visitor picks a theme explicitly.
+  let theme = stored('bing-theme') || (systemDark?.matches ? 'dark' : 'light');
   if (!['en', 'zh'].includes(language)) language = 'en';
   if (!['light', 'dark'].includes(theme)) theme = 'light';
 
@@ -50,6 +52,11 @@
   themeButton.addEventListener('click', () => {
     theme = theme === 'light' ? 'dark' : 'light';
     save('bing-theme', theme);
+    renderTheme();
+  });
+  systemDark?.addEventListener?.('change', event => {
+    if (stored('bing-theme')) return;
+    theme = event.matches ? 'dark' : 'light';
     renderTheme();
   });
   document.getElementById('print-cv')?.addEventListener('click', () => window.print());
@@ -170,6 +177,14 @@
   };
   window.addEventListener('scroll', () => { if (!scrollPending) { scrollPending = true; requestAnimationFrame(updateSection); } }, {passive:true});
   updateSection();
+  // Fade sections in once as they enter the viewport; content stays visible without JS.
+  if ('IntersectionObserver' in window && !window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+    const revealTargets = document.querySelectorAll('.profile, .section-heading, .entry, .awards-list li, .skills-list > div');
+    const revealer = new IntersectionObserver(entries => {
+      for (const entry of entries) if (entry.isIntersecting) { entry.target.classList.add('is-visible'); revealer.unobserve(entry.target); }
+    }, {rootMargin: '0px 0px -8% 0px'});
+    revealTargets.forEach(target => { if (target.getBoundingClientRect().top > innerHeight) { target.classList.add('reveal'); revealer.observe(target); } });
+  }
   let printDetails = [];
   window.addEventListener('beforeprint', () => { printDetails = [...document.querySelectorAll('details:not([open])')]; printDetails.forEach(detail => { detail.open = true; }); });
   window.addEventListener('afterprint', () => { printDetails.forEach(detail => { detail.open = false; }); });

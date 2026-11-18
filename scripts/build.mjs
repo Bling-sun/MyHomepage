@@ -90,11 +90,12 @@ function build(cv = false) {
 
   const section = (id, en, zh, body, count) => `<section id="${id}" aria-labelledby="${id}-heading"><div class="section-heading"><div class="section-title"><span class="section-index" aria-hidden="true">${String(['projects', 'papers', 'awards', 'skills'].indexOf(id) + 1).padStart(2, '0')} /</span><h2 id="${id}-heading">${ui(en, zh, `heading.${id}`)}</h2></div>${count ? `<span class="section-count">${String(count).padStart(2, '0')}</span>` : ''}</div>${body}</section>`;
   const bio = content.bio.map((p, i) => text(p, `bio.${i}`, 'p')).join('');
-  const awards = `<ul class="awards-list">${content.awards.map((award, i) => text(award, `award.${i}`, 'li')).join('')}</ul>`;
-  const skills = `<dl class="skills-list">${content.skills.map((skill, i) => `<div><dt><span class="skill-index" aria-hidden="true">0${i + 1}</span>${text(skill.label, `skill.${i}.label`)}</dt><dd>${escape(skill.detail)}</dd></div>`).join('')}</dl>`;
+  const awards = `<ul class="awards-list">${content.awards.map((award, i) => `<li><span class="award-icon">${icon('awards')}</span>${text(award, `award.${i}`)}</li>`).join('')}</ul>`;
+  const skills = `<dl class="skills-list">${content.skills.map((skill, i) => `<div><dt><span class="skill-index" aria-hidden="true">0${i + 1}</span>${text(skill.label, `skill.${i}.label`)}</dt><dd><ul class="chip-list">${skill.detail.split(' · ').map(item => `<li>${escape(item)}</li>`).join('')}</ul></dd></div>`).join('')}</dl>`;
   const name = text(content.name, 'name', 'h1');
   const role = text(content.role, 'role', 'p', ' class="role"');
-  const interests = text(content.interests, 'interests', 'p', ' class="interests"');
+  const interestItems = Object.fromEntries(['en', 'zh'].map(lang => [lang, content.interests[lang].split(' · ')]));
+  const interests = `<ul class="interests" aria-label="Research interests">${interestItems.en.map((en, i) => text({ en, zh: interestItems.zh[i] ?? en }, `interests.${i}`, 'li')).join('')}</ul>`;
   const nav = [['projects', 'Projects', '项目'], ['papers', 'Papers', '论文'], ['awards', 'Awards', '竞赛'], ['skills', 'Skills', '技能']];
   const toolbar = `<div class="toolbar" aria-label="Links and display options">
     ${cv ? link('./', `<span aria-hidden="true">←</span>${ui('Back to homepage', '返回主页', 'ui.home')}`, ' class="tool-link" data-profile-link') : link('cv.html', `${icon('cv')}${ui('View CV', '查看简历', 'ui.cv')}<span aria-hidden="true">↗</span>`, ' class="tool-link button-primary" id="cv-link" data-profile-link')}
@@ -128,12 +129,14 @@ function build(cv = false) {
 </head>
 <body${cv ? ' class="cv-page"' : ''}>
   ${ui('Skip to content', '跳转到内容', 'ui.skip', 'a', ' class="skip-link" href="#main"')}
-  <header class="hero">
+  <header class="site-header">
     <div class="site-topbar">
       <a class="brand" href="./" data-profile-link aria-label="Bing Sun — Homepage"><span class="brand-mark" aria-hidden="true">bs<span>.</span></span><span class="brand-name">Bing Sun</span></a>
-      ${ui(cv ? 'CURRICULUM VITAE' : 'RESEARCH PORTFOLIO', cv ? '个人简历' : '研究与实践', 'topbar.caption', 'span', ' class="topbar-caption"')}
+      ${cv ? ui('CURRICULUM VITAE', '个人简历', 'topbar.caption', 'span', ' class="topbar-caption"') : `<nav class="section-nav" aria-label="Sections">${nav.map(([id, en, zh]) => link(`#${id}`, icon(id) + ui(en, zh, `nav.${id}`))).join('')}</nav>`}
       ${displayOptions}
     </div>
+  </header>
+  <div class="hero">
     <div class="hero-inner">
       <div class="hero-copy">
         <div class="eyebrow"><span class="status-dot" aria-hidden="true"></span>${ui('ROBOTICS & EMBODIED AI', '机器人与具身智能', 'hero.eyebrow')}</div>
@@ -142,12 +145,11 @@ function build(cv = false) {
         ${toolbar}
         ${!cv ? link('#projects', `${ui('Explore my work', '探索我的项目', 'hero.explore')}<span aria-hidden="true">↗</span>`, ' class="hero-cta"') : ''}
       </div>
-      <div class="portrait-wrap"><img class="portrait" src="assets/portrait.jpg" alt="Bing Sun" width="128" height="154"><span class="portrait-caption">SHENZHEN · CHINA</span></div>
+      <div class="portrait-wrap"><img class="portrait" src="assets/portrait.jpg" alt="Bing Sun" width="187" height="263"><span class="portrait-caption">SHENZHEN · CHINA</span></div>
 
     </div>
     ${!cv ? `<div class="hero-index"><div><strong>${String(content.projects.length).padStart(2, '0')}</strong>${ui('Selected projects', '项目实践', 'hero.projects')}</div><div><strong>${String(content.papers.length).padStart(2, '0')}</strong>${ui('Research papers', '研究论文', 'hero.papers')}</div><div><strong>2027</strong>${ui('Expected graduation', '预计毕业', 'hero.graduation')}</div><p>${ui('PERCEPTION → PLANNING → ACTION', '感知 → 规划 → 行动', 'hero.pipeline')}</p></div>` : ''}
-  </header>
-  ${!cv ? `<nav class="section-nav" aria-label="Sections"><div class="section-nav-inner">${nav.map(([id, en, zh]) => link(`#${id}`, icon(id) + ui(en, zh, `nav.${id}`))).join('')}</div></nav>` : ''}
+  </div>
   <main class="container" id="main">
     ${cv ? `<section class="cv-document" aria-labelledby="cv-heading">
       <div class="cv-document-heading"><div>${ui('Curriculum Vitae', '个人简历', 'cv.heading', 'h2', ' id="cv-heading"')}${ui(`Original Chinese CV · ${cvPages.length} pages`, `中文简历原件 · 共 ${cvPages.length} 页`, 'cv.description', 'p')}</div><div class="document-actions">${link('assets/Bing-Sun-CV.pdf', `${icon('cv')}${ui('Open PDF', '打开 PDF', 'ui.openPDF')}`, ' class="tool-link" target="_blank" rel="noopener noreferrer"')}${link('assets/Bing-Sun-CV.pdf', `${icon('download')}${ui('Download CV', '下载简历', 'ui.downloadCV')}`, ' class="tool-link button-primary" id="cv-download" download="Bing-Sun-CV.pdf"')}</div></div>
