@@ -29,11 +29,7 @@ Remove any obsolete `assets/cv/page-*.jpg` files if the new PDF has fewer pages.
 
 ## Preview
 
-```bash
-python3 -m http.server 8000 --bind 127.0.0.1
-```
-
-Open [localhost:8000](http://127.0.0.1:8000/).
+The site is plain static HTML with no server or build step needed to view it: open the [live homepage](https://bling-sun.github.io/MyHomepage/), or double-click `index.html` in a local checkout.
 
 ## Deploy
 
